@@ -1,0 +1,121 @@
+<div class="x_page-header">
+	<h1>{$lang->cmd_voted}</h1>
+</div>
+
+<form class="x_form-horizontal" action="./" method="post" id="voted">
+	<input type="hidden" name="module" value="voted" />
+	<input type="hidden" name="act" value="procVotedAdminInsertConfig" />
+	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
+	<input type="hidden" name="xe_validator_id" value="modules/voted/tpl/config/1" />
+
+	<div class="message {$XE_VALIDATOR_MESSAGE_TYPE}" cond="$XE_VALIDATOR_MESSAGE && $XE_VALIDATOR_ID == 'modules/voted/tpl/config/1'">
+		<p>{$XE_VALIDATOR_MESSAGE}</p>
+	</div>
+
+	<section class="section">
+		<h1>{lang('cmd_voted_general_config')}</h1>
+		<div class="x_control-group">
+			<div class="x_control-label">{lang('cmd_use_of_module')}</div>
+			<div class="x_controls">
+				<label class="x_inline" for="general_config_N">
+					<input type="radio" name="general_config" id="general_config_N" value="" checked="checked"|cond="!$voted_config->general_config"> {lang('notuse')}
+				</label>
+				<label class="x_inline" for="general_config_D">
+					<input type="radio" name="general_config" id="general_config_D" value="D" checked="checked"|cond="$voted_config->general_config === 'D'"> {lang('use_only_for_document')}
+				</label>
+				<label class="x_inline" for="general_config_C">
+					<input type="radio" name="general_config" id="general_config_C" value="C" checked="checked"|cond="$voted_config->general_config === 'C'"> {lang('use_only_for_comment')}
+				</label>
+				<label class="x_inline" for="general_config_A">
+					<input type="radio" name="general_config" id="general_config_A" value="A" checked="checked"|cond="$voted_config->general_config === 'A'"> {lang('use_both_of_contents')}
+				</label>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<div class="x_control-label">{lang('importer.importer')}</div>
+			<div class="x_controls">
+				<label class="x_inline" for="import_log">
+					<input type="checkbox" id="import_log" value=""> {lang('layout.layout_import')}
+				</label>
+				<input type="button" class="x_btn import_log" value="{lang('layout.layout_import')}" style="display: none;" />
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
+		<h1>{lang('cmd_set_design_info')}</h1>
+		<div class="x_control-group">
+			<label class="x_control-label" for="layout">{lang('layout')}</label>
+			<div class="x_controls">
+				<select id="layout" name="layout_srl">
+					<option value="0">{lang('notuse')}</option>
+					<option loop="$layout_list => $key,$val" value="{$val->layout_srl}" selected="selected"|cond="$val->layout_srl == $voted_config->layout_srl">{$val->title} ({$val->layout})</option>
+				</select>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="skin">{lang('skin')}</label>
+			<div class="x_controls">
+				<select id="skin" name="skin">
+					<option loop="$skin_list=>$key,$val" value="{$key}" selected="selected"|cond="$voted_config->skin==$key">{$val->title} ({$key})</option>
+				</select>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="mlayout">{lang('mobile_layout')}</label>
+			<div class="x_controls">
+				<select id="mlayout" name="mlayout_srl">
+					<option value="0">{lang('notuse')}</option>
+					<option loop="$mlayout_list => $key,$val" value="{$val->layout_srl}" selected="selected"|cond="$val->layout_srl == $voted_config->mlayout_srl">{$val->title} ({$val->layout})</option>
+				</select>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="mskin">{lang('mobile_skin')}</label>
+			<div class="x_controls">
+				<select id="mskin" name="mskin">
+					<option loop="$mskin_list=>$key,$val" value="{$key}" selected="selected"|cond="$voted_config->mskin==$key">{$val->title} ({$key})</option>
+				</select>
+			</div>
+		</div>
+	</section>
+
+	<div class="btnArea x_clearfix">
+		<button type="submit" class="x_btn x_btn-primary x_pull-right">{lang('cmd_registration')}</button>
+	</div>
+
+</form>
+
+<script>
+$(document).on('change', '#import_log', function() {
+	this.checked ? $(this).parent().next().show(): $(this).parent().next().hide();
+});
+$(document).on('click', '.import_log', function() {
+	if ( confirm('{lang("admin.confirm_run")}') ) {
+		exec_json('voted.procVotedAdminImportLog', {}, function(ret_obj) {
+			if ( ret_obj.error ) {
+				alert('{lang("advanced_mailer.msg_advanced_mailer_unknown_error")}');
+			} else {
+				$('#import_log').prop('checked', false);
+				$('#import_log').parent().removeClass('checked');
+				$('#import_log').parent().next().hide();
+
+				var document_vote_log_count = ret_obj.document_vote_log_count;
+				var comment_vote_log_count = ret_obj.comment_vote_log_count;
+				var result = document_vote_log_count + comment_vote_log_count || 0;
+				if ( result ) {
+					$('.import_log').after('<p style="padding-top: 5px;">{lang("msg_success_to_import")}</p>');
+					$('.import_log').next().children('span').eq(0).text(document_vote_log_count);
+					$('.import_log').next().children('span').eq(1).text(comment_vote_log_count);
+				} else {
+					$('.import_log').after('<p style="padding-top: 5px;">{lang("msg_no_more_data")}</p>');
+				}
+				$('#import_log').parent().remove();
+				$('.import_log').remove();
+			}
+		});
+	} else {
+		alert('{lang("msg_select_cancel")}');
+	}
+});
+</script>

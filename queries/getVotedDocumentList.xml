@@ -1,0 +1,29 @@
+<query id="getVotedDocumentList" action="select">
+    <tables>
+        <table name="documents" />
+        <table name="voted_content_log" type="left join">
+            <conditions>
+                <condition operation="equal" column="voted_content_log.content_type" default="1" />
+                <condition operation="equal" column="documents.document_srl" default="voted_content_log.target_srl" />
+            </conditions>
+        </table>
+    </tables>
+    <columns>
+        <column name="documents.*" />
+        <column name="voted_content_log.regdate" alias="voted_date" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="voted_content_log.member_srl" var="member_srl" filter="number" notnull="notnull" />
+		<condition operation="gte" column="voted_content_log.point" default="0" pipe="and" />
+		<group pipe="and">
+			<condition operation="search" column="documents.title" var="s_title" />
+			<condition operation="search" column="documents.content" var="s_content" pipe="or" />
+		</group>
+    </conditions>
+    <navigation>
+        <index var="sort_index" default="voted_content_log.regdate" order="desc" />
+        <list_count var="list_count" default="20" />
+        <page_count var="page_count" default="10" />
+        <page var="page" default="1" />
+    </navigation>
+</query>

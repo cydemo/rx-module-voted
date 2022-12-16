@@ -1,0 +1,53 @@
+<query id="getVotedContentList" action="select">
+    <tables>
+        <table name="voted_content_log" />
+		<table name="documents" type="left join">
+			<conditions>
+				<condition operation="equal" column="voted_content_log.target_srl" default="documents.document_srl" notnull="notnull" pipe="and" />
+			</conditions>
+		</table>
+		<table name="comments" type="left join">
+			<conditions>
+				<condition operation="equal" column="voted_content_log.target_srl" default="comments.comment_srl" notnull="notnull" pipe="and" />
+			</conditions>
+		</table>
+    </tables>
+    <columns>
+        <column name="voted_content_log.content_type" />
+        <column name="voted_content_log.regdate" alias="voted_date" />
+        <column name="voted_content_log.target_srl" />
+        <column name="documents.module_srl" alias="document_module_srl" />
+        <column name="documents.member_srl" alias="document_member_srl" />
+        <column name="documents.nick_name" alias="document_nick_name" />
+        <column name="documents.title" alias="document_title" />
+        <column name="documents.voted_count" alias="document_voted_count" />
+        <column name="documents.comment_count" alias="document_comment_count" />
+        <column name="documents.regdate" alias="document_regdate" />
+        <column name="comments.module_srl" alias="comment_module_srl" />
+        <column name="comments.document_srl" alias="comment_document_srl" />
+        <column name="comments.member_srl" alias="comment_member_srl" />
+        <column name="comments.nick_name" alias="comment_nick_name" />
+        <column name="comments.content" alias="comment_content" />
+        <column name="comments.voted_count" alias="comment_voted_count" />
+        <column name="comments.regdate" alias="comment_regdate" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="voted_content_log.member_srl" var="member_srl" filter="number" notnull="notnull" />
+		<condition operation="gte" column="voted_content_log.point" default="0" pipe="and" />
+		<group pipe="and">
+			<condition operation="equal" column="documents.document_srl" var="voted_content_log.target_srl" />
+			<condition operation="equal" column="comments.comment_srl" var="voted_content_log.target_srl" pipe="or" />
+        </group>
+		<group pipe="and">
+			<condition operation="search" column="documents.title" var="s_title" />
+			<condition operation="search" column="documents.content" var="s_content" pipe="or" />
+			<condition operation="search" column="comments.content" var="s_content" pipe="or" />
+		</group>
+    </conditions>
+    <navigation>
+        <index var="sort_index" default="voted_date" order="desc" />
+        <list_count var="list_count" default="20" />
+        <page_count var="page_count" default="10" />
+        <page var="page" default="1" />
+    </navigation>
+</query>

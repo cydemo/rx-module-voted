@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module>
+	<grants>
+	</grants>
+	<actions>
+		<!-- 관리자 액션 -->
+		<action name="dispVotedAdminConfig" type="view" menu_name="voted" admin_index="true" />
+		<action name="procVotedAdminInsertConfig" type="controller" />
+		<action name="procVotedAdminImportLog" type="controller" />
+		<!-- 일반 액션 -->
+		<action name="dispVotedContentList" type="view" permission="member" meta-noindex="true" route="my_voted_contents" />
+	</actions>
+	<menus>
+		<menu name="voted" type="all">
+			<title xml:lang="ko">추천 글/댓글</title>
+		</menu>
+	</menus>
+</module>
