@@ -13,17 +13,36 @@ class VotedView extends Voted
 	public function init()
 	{
 		$this->voted_config = $this->getConfig();
-		Context::set('config', $this->voted_config);
+		Context::set('voted_config', $this->voted_config);
 
-		if ( !Mobile::isMobileCheckByAgent() )
+		if ( !Mobile::isMobileCheckByAgent() || (config('mobile.tablets') && !Mobile::isMobilePadCheckByAgent()) )
 		{
 			// 스킨 경로 지정
-			$this->setTemplatePath($this->module_path . 'skins/' . ($this->voted_config->skin ?: 'default'));
-
-			// 레이아웃
-			if ( $this->voted_config->layout_srl )
+			$skin = $this->voted_config->skin;
+			if ( !$skin )
 			{
-				$this->module_info->layout_srl = $this->voted_config->layout_srl;
+				$skin = 'default';
+			}
+			$template_path = sprintf('%sskins/%s', $this->module_path, $skin);
+			if ( !is_dir($template_path) )
+			{
+				$template_path = sprintf("%sskins/%s/", $this->module_path, 'default');
+			}
+			$this->setTemplatePath($template_path);
+
+			// 레이아웃 지정
+			$layout_srl = $this->voted_config->layout_srl;
+			if ( $layout_srl === -1 )
+			{
+				$oLayoutAdminModel = getAdminModel('layout');
+				$layout_srl = $oLayoutAdminModel->getSiteDefaultLayout();
+			}
+
+			$layout_info = LayoutModel::getInstance()->getLayout($layout_srl);
+			if ( $layout_info )
+			{
+				$this->module_info->layout_srl = $layout_srl;
+				$this->setLayoutPath($layout_info->path);
 			}
 		}
 		else
@@ -36,10 +55,15 @@ class VotedView extends Voted
 			}
 			else if ( $mskin === '/USE_RESPONSIVE/' )
 			{
-				$template_path = sprintf('%sskins/%s/', $this->module_path, $this->voted_config->skin);
-				if ( !is_dir($template_path) || !$this->voted_config->skin )
+				$skin = $this->voted_config->skin;
+				if ( !$skin )
 				{
-					$template_path = sprintf('%sskins/%s/', $this->module_path, 'default');
+					$skin = 'default';
+				}
+				$template_path = sprintf("%sskins/%s/", $this->module_path, $skin);
+				if ( !is_dir($template_path) )
+				{
+					$template_path = sprintf("%sskins/%s/", $this->module_path, 'default');
 				}
 			}
 			else
@@ -50,18 +74,38 @@ class VotedView extends Voted
 
 			// 모바일 레이아웃
 			$mlayout_srl = $this->voted_config->mlayout_srl;
-			if ( $this->voted_config->mlayout_srl )
+			if ( $mlayout_srl === -2 )
 			{
 				// PC와 동일한 반응형
-				if ( $mlayout_srl < 0 )
-				{
-					$mlayout_srl = $this->voted_config->layout_srl;
-				}
+				$mlayout_srl = $this->voted_config->layout_srl;
+			}
+			else if ( $mlayout_srl === -1 )
+			{
+				// 사이트 기본 레이아웃
+				$oLayoutAdminModel = getAdminModel('layout');
+				$mlayout_srl = $oLayoutAdminModel->getSiteDefaultLayout('M');
+			}
 
-				if ( $layout_path = getModel('layout')->getLayout($mlayout_srl)->path )
+			$layout_info = LayoutModel::getInstance()->getLayout($mlayout_srl);
+			if ( $layout_info )
+			{
+				$this->module_info->mlayout_srl = $mlayout_srl;
+				$this->setLayoutPath($layout_info->path);
+				$this->setLayoutFile('layout');
+
+				if ( !Context::get('layout_info') )
 				{
-					$this->setLayoutPath($layout_path);
-					$this->setLayoutFile('layout');
+					if ( $layout_info->extra_var )
+					{
+						foreach ( $layout_info->extra_var as $key => $val )
+						{
+							if ( !isset($layout_info->{$key}) )
+							{
+								$layout_info->{$key} = $val->value;
+							}
+						}
+					}
+					Context::set('layout_info', $layout_info);
 				}
 			}
 		}

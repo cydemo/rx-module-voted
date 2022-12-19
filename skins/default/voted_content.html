@@ -4,7 +4,7 @@
 <table class="table table-striped table-hover">
 	<caption>
 		Total: {number_format($total_count)}, Page {number_format($page)}/{number_format($total_page)}
-		<!--@if($config->general_config === 'A')-->| <a href="{getUrl('page','','general_config','')}">{lang('total')}</a> | <a href="{getUrl('page','','general_config','D')}">{lang('document')}</a> | <a href="{getUrl('page','','general_config','C')}">{lang('comment')}</a><!--@end-->
+		<!--@if($voted_config->general_config === 'A')-->| <a href="{getUrl('page','','general_config','')}">{lang('total')}</a> | <a href="{getUrl('page','','general_config','D')}">{lang('document')}</a> | <a href="{getUrl('page','','general_config','C')}">{lang('comment')}</a><!--@end-->
 	</caption>
 	<thead>
 		<tr>
@@ -21,18 +21,18 @@
 		<tr>
 			<td>{$no}</td>
 			<td class="title">
-			<!--@if($config->general_config === 'D')-->
+			<!--@if($voted_config->general_config === 'D')-->
 
 				<a href="{$oContent->getPermanentUrl()}" target="_blank">{$oContent->getTitleText()}</a>
 				<!--@if($oContent->getCommentCount())-->
 					[{$oContent->getCommentCount()}]
 				<!--@end-->
 
-			<!--@elseif($config->general_config === 'C')-->
+			<!--@elseif($voted_config->general_config === 'C')-->
 
 				<a href="{$oContent->getPermanentUrl()}" target="_blank">{$oContent->getSummary()}</a>
 
-			<!--@elseif($config->general_config === 'A')-->
+			<!--@elseif($voted_config->general_config === 'A')-->
 
 				<!--@if(!isset($oContent->comment_srl))-->
 
