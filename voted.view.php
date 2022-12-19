@@ -26,7 +26,7 @@ class VotedView extends Voted
 			$template_path = sprintf('%sskins/%s', $this->module_path, $skin);
 			if ( !is_dir($template_path) )
 			{
-				$template_path = sprintf("%sskins/%s/", $this->module_path, 'default');
+				$template_path = sprintf('%sskins/%s/', $this->module_path, 'default');
 			}
 			$this->setTemplatePath($template_path);
 
@@ -55,15 +55,15 @@ class VotedView extends Voted
 			}
 			else if ( $mskin === '/USE_RESPONSIVE/' )
 			{
-				$skin = $this->voted_config->skin;
-				if ( !$skin )
+				$mskin = $this->voted_config->skin;
+				if ( !$mskin )
 				{
-					$skin = 'default';
+					$mskin = 'default';
 				}
-				$template_path = sprintf("%sskins/%s/", $this->module_path, $skin);
+				$template_path = sprintf('%sskins/%s/', $this->module_path, $mskin);
 				if ( !is_dir($template_path) )
 				{
-					$template_path = sprintf("%sskins/%s/", $this->module_path, 'default');
+					$template_path = sprintf('%sskins/%s/', $this->module_path, 'default');
 				}
 			}
 			else
