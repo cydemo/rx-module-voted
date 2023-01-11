@@ -2,8 +2,8 @@
 <module version="0.2">
 	<title xml:lang="ko">나의 추천 글/댓글</title>
 	<description xml:lang="ko">본인이 추천한 문서와 댓글을 목록화하여 회원 메뉴를 통해 보여준다.</description>
-	<version>0.2.1</version>
-	<date>2022-12-19</date>
+	<version>0.2.2</version>
+	<date>2023-01-12</date>
 	<category>service</category>
 	<author email_address="cydemo@aporia.blog" link="https://dev.aporia.blog">
 		<name xml:lang="ko">윤삼</name>

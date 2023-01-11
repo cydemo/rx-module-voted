@@ -86,6 +86,7 @@ class VotedView extends Voted
 				$mlayout_srl = $oLayoutAdminModel->getSiteDefaultLayout('M');
 			}
 
+			// 모바일 레이아웃 변수 및 메뉴 세팅
 			$layout_info = LayoutModel::getInstance()->getLayout($mlayout_srl);
 			if ( $layout_info )
 			{
@@ -95,7 +96,7 @@ class VotedView extends Voted
 
 				if ( !Context::get('layout_info') )
 				{
-					if ( $layout_info->extra_var )
+					if ( $layout_info->extra_var_count )
 					{
 						foreach ( $layout_info->extra_var as $key => $val )
 						{
@@ -103,6 +104,44 @@ class VotedView extends Voted
 							{
 								$layout_info->{$key} = $val->value;
 							}
+						}
+					}
+
+					if ( $layout_info->menu_count )
+					{
+						$oMenuAdminModel = getAdminModel('menu');
+						$oMenuAdminController = getAdminController('menu');
+						$homeMenuCacheFile = null;
+
+						foreach ( $layout_info->menu as $menu_id => $menu )
+						{
+							if ( $menu->menu_srl == 0 )
+							{
+								$menu = new stdClass;
+							}
+							else
+							{
+								if ( $menu->menu_srl == -1 )
+								{
+									if ( $homeMenuCacheFile === null )
+									{
+										$homeMenuCacheFile = $oMenuAdminController->getHomeMenuCacheFile();
+									}
+
+									$homeMenuSrl = 0;
+									if ( FileHandler::exists($homeMenuCacheFile) )
+									{
+										include($homeMenuCacheFile);
+									}
+
+									$menu->xml_file = './files/cache/menu/' . $homeMenuSrl . '.xml.php';
+									$menu->php_file = './files/cache/menu/' . $homeMenuSrl . '.php';
+									$menu->menu_srl = $homeMenuSrl;
+								}
+								$menu = $oMenuAdminModel->getMenuInfo($menu->menu_srl);
+							}
+
+							Context::set($menu_id, $menu);
 						}
 					}
 					Context::set('layout_info', $layout_info);
